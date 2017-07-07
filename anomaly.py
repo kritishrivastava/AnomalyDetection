@@ -46,43 +46,55 @@ def netSimile(graphList, doClustering):
     #generate “signature” vectors for each graph
     signatureVectorList = aggregator(nodeFeatureMatrices)
     #do comparison and return similarity/distance values for the given graphs
-   # compare(signatureVectorList, doClustering)
+    compare(signatureVectorList, doClustering)
 
 
 #Algorithm 2: NETSIMILE’s GETFEATURES
-def getFeatures(list_graph_list):
+def getFeatures(graphList):
     #Input: list of graphs for which feature list has to be generated
     #Output: a list of node*feature matrix for all the graphs in the graph list
-    features = []
-    for G in list_graph_list:
-        F = []
-        for V in G.nodes():
-            d_i = len(G.neighbors(V))
-            c_i = nx.clustering(G, V)
-            d_ni = float(len(neighborhood(G, V, 2))) / float(d_i)
+    nodeFeatureMatrices = []
+    #Compute the node*feature matrix for graph G
+    for G in graphList:
+        nodeFeatureMatrix = []
+        #Calculated the values of the 7 features for all nodes in the graph G
+        for node in G.nodes():
+            #Feature 1: degree of the node
+            d_i = G.degree(node)
+            #Feature 2: clustering coefficient of the node
+            c_i = nx.clustering(G, node)
+            #Feature 3: average number of node's two-hop away neighbors
+            d_ni = float(len(neighborhood(G, node, 2))) / float(d_i)
+            #Feature 4: average clustering coefficient of neighbors of the node
             c_ni = 0
-            for neighbor in G.neighbors(V):
+            for neighbor in G.neighbors(node):
                 c_ni = c_ni + nx.clustering(G, neighbor)
             c_ni = float(c_ni) / float(d_i)
-            ego_gph = nx.ego_graph(G, V)
-            E_ego = len(ego_gph.edges())
-
+            #Feature 5: number of edges in node's egonet
+            egonet = nx.ego_graph(G, node)
+            E_ego = len(egonet.edges())
+            #Feature 6: number of outgoing edges from node's egonet
             Estar_ego = 0
             e_list = set()
-            for v in ego_gph:
-                e_list = e_list.union(G.edges(v))
-            e_list = e_list - set(ego_gph.edges())
+            for vertex in egonet:
+                #Finding all edges of the nodes in the egonet
+                e_list = e_list.union(G.edges(vertex))
+            #Removing the edges which are the part of egonet itself to get the outing edges
+            e_list = e_list - set(egonet.edges())
             Estar_ego = len(list(e_list))
-
+            #Feature 7: number of neighbors of egonet
             N_ego = 0
             n_list = set()
-            for v in ego_gph:
-                n_list = n_list.union(G.neighbors(v))
-            n_list = n_list - set(ego_gph.nodes())
-            N_ego = len(list(n_list))
-            F.append([d_i, c_i, d_ni, c_ni, E_ego, Estar_ego, N_ego])
-        features.append(F)
-    return features
+            for vertex in egonet:
+                #Finding all neighbors of the nodes in the egonet
+                n_list = n_list.union(G.neighbors(vertex))
+            # Removing the nodes which are the part of egonet itself to get the remaining neighbors
+            n_list = n_list - set(egonet.nodes())
+            N_ego = len(list(n_list))            
+            nodeFeatureMatrix.append([d_i, c_i, d_ni, c_ni, E_ego, Estar_ego, N_ego])
+        #Append the node*graph matrix for the graph to the list
+        nodeFeatureMatrices.append(nodeFeatureMatrix)
+    return nodeFeatureMatrices
 
 #Algorithm 3: NETSIMILE’s AGGREGATOR
 def aggregator(nodeFeatureMatrices):
@@ -91,22 +103,20 @@ def aggregator(nodeFeatureMatrices):
     signatureVectorList = list()
     for nodeFeatureMatrix in nodeFeatureMatrices:
         signatureVector = list()
+        #Calculate the aggregate values for all the 7 features
         for i in range(7):
-            list1 = [item[0] for item in nodeFeatureMatrix]
-            mean1 = np.mean(list1)
-            median1 = np.median(list1)
-            stdev = np.std(list1)
-            skewness = skew(list1)
-            kurtosis1 = kurtosis(list1)
-            aggFeature = [median1,mean1,stdev,skewness,kurtosis1]
+            featureColumn = [item[0] for item in nodeFeatureMatrix]
+            aggFeature = [np.median(featureColumn),np.mean(featureColumn),np.std(featureColumn),
+                          skew(featureColumn),kurtosis(featureColumn, fisher=False)]
+            #Append the aggregated values for this feature to the signature vector
             signatureVector.append(aggFeature)
         signatureVectorList.append(signatureVector)
-    print(signatureVectorList)
     return(signatureVectorList)
 
 #Algorithm 4: NETSIMILE’s COMPARE
-
-
+def compare(signatureVectorList, doClustering):
+    #eff
+    a = 0
 
 if __name__ == "__main__":
     #Read input file name and create file path accordingly
