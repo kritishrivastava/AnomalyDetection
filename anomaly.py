@@ -90,9 +90,9 @@ def getFeatures(graphList):
                 n_list = n_list.union(G.neighbors(vertex))
             # Removing the nodes which are the part of egonet itself to get the remaining neighbors
             n_list = n_list - set(egonet.nodes())
-            N_ego = len(list(n_list))            
+            N_ego = len(list(n_list))
             nodeFeatureMatrix.append([d_i, c_i, d_ni, c_ni, E_ego, Estar_ego, N_ego])
-        #Append the node*graph matrix for the graph to the list
+        #Append the node*feature matrix for the graph to the list
         nodeFeatureMatrices.append(nodeFeatureMatrix)
     return nodeFeatureMatrices
 
@@ -105,7 +105,7 @@ def aggregator(nodeFeatureMatrices):
         signatureVector = list()
         #Calculate the aggregate values for all the 7 features
         for i in range(7):
-            featureColumn = [item[0] for item in nodeFeatureMatrix]
+            featureColumn = [node[i] for node in nodeFeatureMatrix]
             aggFeature = [np.median(featureColumn),np.mean(featureColumn),np.std(featureColumn),
                           skew(featureColumn),kurtosis(featureColumn, fisher=False)]
             #Append the aggregated values for this feature to the signature vector
@@ -115,8 +115,10 @@ def aggregator(nodeFeatureMatrices):
 
 #Algorithm 4: NETSIMILE’s COMPARE
 def compare(signatureVectorList, doClustering):
-    #eff
-    a = 0
+    #Since clustering is out of scope of this project
+    if(doClustering == False):
+        print(len(signatureVectorList))
+        #calculate distance between graphs and print to output file here
 
 if __name__ == "__main__":
     #Read input file name and create file path accordingly
