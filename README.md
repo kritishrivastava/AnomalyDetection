@@ -19,3 +19,7 @@ Instructions to run the program:
 1. Go the the directory containing the python script.
 2. Give the command "python anomaly.py graphname" where graphname is the name of the graph you want to find the communities for.
    ex. python anomaly.py voices
+
+Output of the program:
+1. Text files-- details
+2. Graph plots-- details
