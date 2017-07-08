@@ -102,14 +102,14 @@ def aggregator(nodeFeatureMatrices):
     #Output: a list of signature vectors for all the graphs in the list
     signatureVectorList = list()
     for nodeFeatureMatrix in nodeFeatureMatrices:
-        signatureVector = list()
+        signatureVector = []
         #Calculate the aggregate values for all the 7 features
         for i in range(7):
             featureColumn = [node[i] for node in nodeFeatureMatrix]
             aggFeature = [np.median(featureColumn),np.mean(featureColumn),np.std(featureColumn),
                           skew(featureColumn),kurtosis(featureColumn, fisher=False)]
             #Append the aggregated values for this feature to the signature vector
-            signatureVector.append(aggFeature)
+            signatureVector = signatureVector + aggFeature
         signatureVectorList.append(signatureVector)
     return(signatureVectorList)
 
@@ -117,8 +117,11 @@ def aggregator(nodeFeatureMatrices):
 def compare(signatureVectorList, doClustering):
     #Since clustering is out of scope of this project
     if(doClustering == False):
-        print(len(signatureVectorList))
-        #calculate distance between graphs and print to output file here
+        #Calculate canberra distance between i and i+1 graphs and print to output file 
+        dist = [scipy.spatial.distance.canberra(signatureVectorList[i], signatureVectorList[i-1])
+                for i in range(1,len(signatureVectorList))]
+        print(dist)
+
 
 if __name__ == "__main__":
     #Read input file name and create file path accordingly
