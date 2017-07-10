@@ -73,7 +73,7 @@ def generateTimeSeriesFile(dists):
     f.close()
 
 
-def plotTimeSeries(dists, threshold):
+def plotTimeSeries(dists, threshold, anomalies):
     #Input: List of canberra distances between graphs and the upper threshold value for detecting anomalies
     #Output: Generates the time series plot for detecting anomalies indicating the threshold
     figure(figsize=(12, 6))
@@ -92,10 +92,8 @@ def netSimile(graphList, doClustering):
     # Input: a list of graphs for which anomaly has to be detected and variable stating whether clustering has to be performed
     # Create node-feature matrices for all the graphs
     nodeFeatureMatrices = getFeatures(graphList)
-    print("features done")
     # generate 'signature' vectors for each graph
     signatureVectorList = aggregator(nodeFeatureMatrices)
-    print("aggregation done")
     # do comparison and return similarity/distance values for the given graphs
     dists = compare(signatureVectorList, doClustering)
     # calculate upper threshold which will be used to determine the anomalies
@@ -105,7 +103,7 @@ def netSimile(graphList, doClustering):
     # Generate the time series text file
     generateTimeSeriesFile(dists)
     # Plot the time series indicating the threshold
-    plotTimeSeries(dists, threshold)
+    plotTimeSeries(dists, threshold, anomalies)
 
 
 # Algorithm 2: NETSIMILE's GETFEATURES
@@ -155,7 +153,6 @@ def getFeatures(graphList):
             N_ego = len(list(n_list))
             nodeFeatureMatrix.append([d_i, c_i, d_ni, c_ni, E_ego, Estar_ego, N_ego])
         # Append the node*feature matrix for the graph to the list
-        print(nodeFeatureMatrix)
         nodeFeatureMatrices.append(nodeFeatureMatrix)
     return nodeFeatureMatrices
 
@@ -182,7 +179,7 @@ def aggregator(nodeFeatureMatrices):
 def compare(signatureVectorList, doClustering):
     # Since clustering is out of scope of this project
     if (doClustering == False):
-        # Calculate canberra distance between i and i+1 graphs and print to output file
+        # Calculate canberra distance between i and i+1 graphs 
         dist = [scipy.spatial.distance.canberra(signatureVectorList[i], signatureVectorList[i - 1])
                 for i in range(1, len(signatureVectorList))]
     return dist
@@ -193,7 +190,6 @@ if __name__ == "__main__":
     graphName = sys.argv[1]
     # Read files and create a graph list
     graphList = readGraph(graphName)
-    print("created graphs!")
     # Setting doClustering as false as clustering is out of scope of this project
     doClustering = False
     # Algoritm 1: NetSimile
