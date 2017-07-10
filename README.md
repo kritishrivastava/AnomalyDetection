@@ -21,5 +21,5 @@ Instructions to run the program:
    ex. python anomaly.py voices
 
 Output of the program:
-1. Text files-- details
-2. Graph plots-- details
+1. Text files: Contains the similarity scores(Canberra distance) between the consequent graphs in the time series. These files are generated in the directory containing the python script under /output/files/. Ex."voices_time_series.txt"
+2. Graph plots: Plot between the similarity score(Canberra distance) between the graphs and the time series. The red horizontal line is the threshold used for detecting anomalies. These plots are generated in the directory containing the python script under /output/plot/. Ex."voices_time_series.png" 
